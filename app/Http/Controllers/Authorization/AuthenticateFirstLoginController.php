@@ -3,37 +3,27 @@
 namespace App\Http\Controllers\Authorization;
 
 use App\Domains\Authorization\CreateAuthTokenService;
+use App\Exceptions\BusinessException;
 use App\Http\Controllers\Authorization\Responses\FirstLoginResponseDTO;
-use App\Http\Controllers\FailResponseDTO;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
 
-class AuthenticateFirstLoginController
+class AuthenticateFirstLoginController extends Controller
 {
     /**
-     * @throws ValidationException
+     * @throws BusinessException
      */
     public function login(
         Request $request,
         CreateAuthTokenService $createAuthTokenService
     ): Response {
-        try {
-            /** @var  $validatedRequestParam */
-            $validatedRequestParam = $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
+        $validatedRequestParam = $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required|min:4|max:12',
+        ]);
 
-            $token = $createAuthTokenService->getToken($validatedRequestParam);
-        } catch (ValidationException $exception) {
-            $errorResponseData = new FailResponseDTO($exception->getMessage(), '0001');
-            return Response(
-                $errorResponseData->data(),
-                422,
-            );
-        }
-
+        $token = $createAuthTokenService->getToken($validatedRequestParam);
         $responseData = new FirstLoginResponseDTO($token);
 
         return Response(

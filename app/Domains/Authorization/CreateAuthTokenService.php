@@ -2,6 +2,7 @@
 
 namespace App\Domains\Authorization;
 
+use App\Exceptions\BusinessException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -9,9 +10,9 @@ use Illuminate\Validation\ValidationException;
 class CreateAuthTokenService
 {
     /**
-     * @throws ValidationException
      * @param array $validatedRequestParam
      * @return string
+     * @throws BusinessException
      */
     function getToken(array $validatedRequestParam): string
     {
@@ -29,7 +30,7 @@ class CreateAuthTokenService
     /**
      * @param array $validatedRequestParam
      * @return User
-     * @throws ValidationException
+     * @throws BusinessException
      */
     private function getUser(array $validatedRequestParam): User
     {
@@ -56,14 +57,12 @@ class CreateAuthTokenService
 
     /**
      * @param bool $isValidate
-     * @throws ValidationException
+     * @throws BusinessException
      */
     private function isValidatePassword(bool $isValidate): void
     {
         if (!$isValidate) {
-            throw ValidationException::withMessages([
-                'password' => '로그인 인증 오류',
-            ]);
+            throw new BusinessException("로그인 검증 실패 오류", 1002);
         }
     }
 }
