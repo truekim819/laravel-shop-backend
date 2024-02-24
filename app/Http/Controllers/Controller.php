@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\BusinessException;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -17,20 +18,12 @@ class Controller extends BaseController
     /**
      * @throws BusinessException
      */
-    protected function validate(Request $request, array $rules): array
+    protected function isValidAccessToken(Request $request): void
     {
-        $this->isValidAccessToken($request);
-
-        return $this->validateParams($request, $rules);
-    }
-
-    /**
-     * @throws BusinessException
-     */
-    private function isValidAccessToken(Request $request): void
-    {
+        /** @var User $user */
+        $user = $request->user();
         /** @var PersonalAccessToken $token */
-        $token = $request->user()->currentAccessToken();
+        $token = $user->currentAccessToken();
         $expiresAt = $token->getAttribute('expires_at');
 
         if (!is_null($expiresAt) && $expiresAt->isPast()) {
@@ -42,7 +35,7 @@ class Controller extends BaseController
     /**
      * @throws BusinessException
      */
-    private function validateParams(Request $request, array $rules): array
+    protected function getValidateParams(Request $request, array $rules): array
     {
         try {
             $validatedRequestParam = $request->validate($rules);

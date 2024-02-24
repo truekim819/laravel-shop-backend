@@ -2,50 +2,38 @@
 
 namespace App\Domains\Authorization;
 
-use App\Exceptions\BusinessException;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class CreateAuthTokenService
 {
+    const AUTH_TOKEN_NAME = 'auth-token';
     /**
-     * @param array $validatedRequestParam
+     * @param User $user
      * @return string
-     * @throws BusinessException
      */
-    function getToken(array $validatedRequestParam): string
+    function getToken(User $user): string
     {
-        $user = $this->getUser($validatedRequestParam);
-        /** @var null|string $token */
-        $token = $user->getRememberToken();
-
-        if ($token === "") {
-            $token = $this->createToken($user);
-        }
+        $token = $this->refreshToken($user);
 
         return  "Bearer $token";
     }
 
-    /**
-     * @param array $validatedRequestParam
-     * @return User
-     * @throws BusinessException
-     */
-    private function getUser(array $validatedRequestParam): User
+    private function refreshToken(User $user): string
     {
-        $user = User::where('email', $validatedRequestParam['email'])
-            ->firstOrFail();
+        if (!$this->isNeedRefresh($user)) {
+            return $user->getRememberToken();
+        }
 
-        $isValidate = Hash::check($validatedRequestParam['password'], $user->getAuthPassword());
+        $user->tokens()->delete();
+        $token = $this->publishNewToken($user);
 
-        $this->isValidatePassword($isValidate);
-
-        return $user;
+        return $token;
     }
 
-    private function createToken(User $user): string
+    private function publishNewToken(User $user): string
     {
-        $tokenString = $user->createToken('auth-token')->plainTextToken;
+        $tokenString = $user->createToken(self::AUTH_TOKEN_NAME, ['*'], now()->addDay())->plainTextToken;
         $parseToken = explode("|", $tokenString)[1];
 
         $user->setRememberToken($parseToken);
@@ -54,14 +42,21 @@ class CreateAuthTokenService
         return $parseToken;
     }
 
-    /**
-     * @param bool $isValidate
-     * @throws BusinessException
-     */
-    private function isValidatePassword(bool $isValidate): void
+    private function isNeedRefresh(User $user): bool
     {
-        if (!$isValidate) {
-            throw new BusinessException("로그인 검증 실패 오류", 1002);
+        if (is_null($user->getRememberToken()))  {
+            return true;
         }
+
+        /** @var PersonalAccessToken $latestAccessToken */
+        $latestAccessToken = $user->tokens()
+            ->get()
+            ->filter(function (PersonalAccessToken $personalAccessToken) {
+                return $personalAccessToken->name === self::AUTH_TOKEN_NAME;
+            })
+            ->last();
+
+        return is_null($latestAccessToken->expires_at)
+        || $latestAccessToken->expires_at->isPast();
     }
 }

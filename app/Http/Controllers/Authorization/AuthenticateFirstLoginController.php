@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Authorization;
 
+use App\Domains\Authorization\ConfirmFirstLoginService;
 use App\Domains\Authorization\CreateAuthTokenService;
 use App\Exceptions\BusinessException;
 use App\Http\Controllers\Authorization\Responses\FirstLoginResponseDTO;
@@ -16,15 +17,17 @@ class AuthenticateFirstLoginController extends Controller
      */
     public function login(
         Request $request,
+        ConfirmFirstLoginService $confirmFirstLoginService,
         CreateAuthTokenService $createAuthTokenService
     ): Response
     {
-        $validatedRequestParam = $this->validate($request, [
+        $validatedRequestParam = $this->getValidateParams($request, [
             'email' => 'required|email',
             'password' => 'required|min:4|max:12',
         ]);
 
-        $token = $createAuthTokenService->getToken($validatedRequestParam);
+        $user = $confirmFirstLoginService->getUser($validatedRequestParam);
+        $token = $createAuthTokenService->getToken($user);
         $responseData = new FirstLoginResponseDTO('로그인이 완료됐습니다.');
 
         return Response(
