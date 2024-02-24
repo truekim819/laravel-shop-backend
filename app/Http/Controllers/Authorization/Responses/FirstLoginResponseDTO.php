@@ -11,12 +11,8 @@ class FirstLoginResponseDTO
         $this->data['data']['token'] = $token;
     }
 
-    public function data(?string $token = null): array
+    public function data(): array
     {
-        if (!is_null($token)) {
-            $this->data['data']['token'] = $token;
-        }
-
         return $this->data;
     }
 

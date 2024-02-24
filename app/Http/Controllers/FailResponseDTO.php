@@ -1,22 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\Authorization\Responses;
+namespace App\Http\Controllers;
 
-class FirstLoginResponseDTO
+class FailResponseDTO
 {
     private array $data;
 
-    public function __construct(?string $token = null)
+    public function __construct(?string $message = null, string $errorCode = '9999')
     {
-        $this->data['data']['token'] = $token;
+        $this->data['data']['message'] = $message;
+        $this->data['data']['errorCode'] = $errorCode;
     }
 
-    public function data(?string $token = null): array
+    public function data(): array
     {
-        if (!is_null($token)) {
-            $this->data['data']['token'] = $token;
-        }
-
         return $this->data;
     }
 
