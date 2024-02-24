@@ -18,23 +18,6 @@ class Controller extends BaseController
     /**
      * @throws BusinessException
      */
-    protected function isValidAccessToken(Request $request): void
-    {
-        /** @var User $user */
-        $user = $request->user();
-        /** @var PersonalAccessToken $token */
-        $token = $user->currentAccessToken();
-        $expiresAt = $token->getAttribute('expires_at');
-
-        if (!is_null($expiresAt) && $expiresAt->isPast()) {
-            // 토큰이 만료된 경우
-            throw new BusinessException('토큰이 만료되었습니다.', 1002);
-        }
-    }
-
-    /**
-     * @throws BusinessException
-     */
     protected function getValidateParams(Request $request, array $rules): array
     {
         try {
