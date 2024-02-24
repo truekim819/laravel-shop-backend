@@ -5,7 +5,6 @@ namespace App\Domains\Authorization;
 use App\Exceptions\BusinessException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class CreateAuthTokenService
 {
@@ -24,7 +23,7 @@ class CreateAuthTokenService
             $token = $this->createToken($user);
         }
 
-        return  $token;
+        return  "Bearer $token";
     }
 
     /**

@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-  //  return $request->user();
-//});
-
-Route::get('/user', [AuthenticateFirstLoginController::class, 'login']);
+Route::middleware(['auth:sanctum'])
+    ->prefix('user')
+    ->group(function () {
+        //로그인 검증 - 가지고 있는 토큰이 없거나, 유효하지 않는 경우 신규 토큰 만듦
+        Route::post('', [AuthenticateFirstLoginController::class, 'login']);
+    });

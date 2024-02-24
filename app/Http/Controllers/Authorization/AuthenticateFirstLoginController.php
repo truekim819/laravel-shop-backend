@@ -17,19 +17,20 @@ class AuthenticateFirstLoginController extends Controller
     public function login(
         Request $request,
         CreateAuthTokenService $createAuthTokenService
-    ): Response {
+    ): Response
+    {
         $validatedRequestParam = $this->validate($request, [
             'email' => 'required|email',
             'password' => 'required|min:4|max:12',
         ]);
 
         $token = $createAuthTokenService->getToken($validatedRequestParam);
-        $responseData = new FirstLoginResponseDTO($token);
+        $responseData = new FirstLoginResponseDTO('로그인이 완료됐습니다.');
 
         return Response(
             $responseData->data(),
             200,
+            ['Authorization' => $token]
         );
     }
-
 }
