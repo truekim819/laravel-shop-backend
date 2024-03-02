@@ -5,7 +5,6 @@ namespace App\Domains\Product;
 use App\Exceptions\BusinessException;
 use App\Models\Product\Products;
 use Illuminate\Database\QueryException;
-use function PHPUnit\Framework\throwException;
 
 class RegisterProductService implements ManageProductService
 {

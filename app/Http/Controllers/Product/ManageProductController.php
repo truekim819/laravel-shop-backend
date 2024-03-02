@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Product;
 
 use App\Domains\Product\RegisterProductService;
+use App\Domains\Product\UpdateProductService;
 use App\Exceptions\BusinessException;
 use App\Http\Controllers\Controller;
+use App\Models\Product\Products;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -54,8 +56,20 @@ class ManageProductController extends Controller
      */
     public function update(
         Request $request,
+        UpdateProductService $updateProductService,
     ): Response
     {
+        /** @var array $validatedRequestParam */
+        $validatedRequestParam = $this->getValidateParams($request, [
+            'id' => 'required|Integer',
+            'product_name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'price' => 'nullable|integer',
+            'stock' => 'nullable|integer',
+        ]);
+
+        $updateProductService->manage($validatedRequestParam);
+
         return Response(
             null,
             204,
