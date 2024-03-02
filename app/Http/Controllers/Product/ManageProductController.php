@@ -41,7 +41,6 @@ class ManageProductController extends Controller
 
         $createProductService->manage($validatedRequestParam);
 
-
         return Response(
             null,
             204,
