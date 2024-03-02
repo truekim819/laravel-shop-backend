@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Product;
 
+use App\Domains\Product\DeleteProductService;
 use App\Domains\Product\RegisterProductService;
 use App\Domains\Product\UpdateProductService;
 use App\Exceptions\BusinessException;
@@ -83,8 +84,16 @@ class ManageProductController extends Controller
      */
     public function delete(
         Request $request,
+        DeleteProductService $deleteProductService,
     ): Response
     {
+        /** @var array $validatedRequestParam */
+        $validatedRequestParam = $this->getValidateParams($request, [
+            'id' => 'required|Integer',
+        ]);
+
+        $deleteProductService->manage($validatedRequestParam);
+
         return Response(
             null,
             204,
