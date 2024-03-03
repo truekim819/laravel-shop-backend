@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Authorization\AuthenticateFirstLoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::prefix('user')
+    ->group(function () {
+        //로그인 검증
+        Route::post('login', [AuthenticateFirstLoginController::class, 'login']);
+    });
+
+
+
